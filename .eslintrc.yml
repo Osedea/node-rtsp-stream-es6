@@ -1,0 +1,6 @@
+extends:
+  - osedea/esnext
+  - osedea/node
+globals:
+  describe: false
+  it: false
