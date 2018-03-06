@@ -24,8 +24,8 @@ class VideoStream extends EventEmitter {
             streamHeader.write(STREAM_MAGIC_BYTES);
             streamHeader.writeUInt16BE(this.width, 4);
             streamHeader.writeUInt16BE(this.height, 6);
-            socket.send(streamHeader);
-            socket.binaryType = 'arraybuffer';
+            // socket.send(streamHeader);
+            // socket.binaryType = 'arraybuffer';
             this.on('camdata', (data) => {
                 server.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
