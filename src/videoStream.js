@@ -3,6 +3,8 @@ const EventEmitter = require('events');
 const STREAM_MAGIC_BYTES = 'jsmp';
 const Mpeg1Muxer = require('./mpeg1muxer');
 
+const initialPacket = [];
+
 class VideoStream extends EventEmitter {
     constructor(options) {
         super(options);
@@ -26,6 +28,14 @@ class VideoStream extends EventEmitter {
             streamHeader.writeUInt16BE(this.height, 6);
             // socket.send(streamHeader);
             // socket.binaryType = 'arraybuffer';
+            // const connection = socket.accept('echo-protocol', socket.origin);
+            // send intial packet from stream.
+            if (initialPacket.length) {
+                initialPacket.map((packet) => {
+                    socket.send(packet);
+                });
+            }
+
             this.on('camdata', (data) => {
                 server.clients.forEach((client) => {
                     if (client.readyState === WebSocket.OPEN) {
@@ -46,7 +56,7 @@ class VideoStream extends EventEmitter {
         streamHeader.write(STREAM_MAGIC_BYTES);
         streamHeader.writeUInt16BE(this.width, 4);
         streamHeader.writeUInt16BE(this.height, 6);
-        socket.send(streamHeader, { binary: true });
+        // socket.send(streamHeader, { binary: true });
       
         console.log(`New connection: ${this.name} - ${this.wsServer.clients.length} total`);
       
@@ -57,7 +67,13 @@ class VideoStream extends EventEmitter {
 
     start() {
         this.mpeg1Muxer = new Mpeg1Muxer({ url: this.url });
-        this.mpeg1Muxer.on('mpeg1data', (data) => { return this.emit('camdata', data) })
+        this.mpeg1Muxer.on('mpeg1data', (data) => {
+            if (initialPacket.length < 3) {
+                console.log(`initial packet ${initialPacket.length}/2`, data);
+                initialPacket.push(data);
+            }
+            return this.emit('camdata', data);
+        });
 
         let gettingInputData = false
         let gettingOutputData = false
