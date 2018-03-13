@@ -13,12 +13,17 @@ class VideoStream extends EventEmitter {
         this.port = options.port;
         this.stream = void 0;
         this.stream2Socket();
+        this.streamStarted = false;
     }
 
     stream2Socket() {
         const server = new WebSocket.Server({ port: this.port });
         server.on('connection', (socket) => {
             console.log(`New connection: ${this.name}`);
+
+            if (server.clients.length === 1 && !this.streamStarted) {
+                this.start();
+            }
 
             const streamHeader = new Buffer(8);
             streamHeader.write(STREAM_MAGIC_BYTES);
@@ -36,6 +41,9 @@ class VideoStream extends EventEmitter {
 
             socket.on('close', () => {
                 console.log(`${this.name} disconnected !`);
+                if (!server.clients.length) {
+                    this.stop();
+                }
             });
         });
     }
@@ -47,9 +55,9 @@ class VideoStream extends EventEmitter {
         streamHeader.writeUInt16BE(this.width, 4);
         streamHeader.writeUInt16BE(this.height, 6);
         socket.send(streamHeader, { binary: true });
-      
+
         console.log(`New connection: ${this.name} - ${this.wsServer.clients.length} total`);
-      
+
         return socket.on("close", function (code, message) {
             return console.log(`${this.name} disconnected - ${this.wsServer.clients.length} total`);
         });
@@ -58,6 +66,8 @@ class VideoStream extends EventEmitter {
     start() {
         this.mpeg1Muxer = new Mpeg1Muxer({ url: this.url });
         this.mpeg1Muxer.on('mpeg1data', (data) => { return this.emit('camdata', data) })
+        this.stream = this.mpeg1Muxer.stream;
+        this.streamStarted = true;
 
         let gettingInputData = false
         let gettingOutputData = false
@@ -94,6 +104,13 @@ class VideoStream extends EventEmitter {
             return global.process.stderr.write(data);
         });
         return this;
+    }
+
+    stop() {
+        if (this.stream) {
+            this.stream.kill();
+            this.streamStarted = false;
+        }
     }
 }
 
