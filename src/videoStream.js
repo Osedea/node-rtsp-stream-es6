@@ -21,9 +21,9 @@ class VideoStream extends EventEmitter {
         server.on('connection', (socket) => {
             console.log(`New connection: ${this.name}`);
 
-            if (server.clients.length === 1 && !this.streamStarted) {
-                this.start();
-            }
+            // if (server.clients.length === 1 && !this.streamStarted) {
+            //     this.start();
+            // }
 
             const streamHeader = new Buffer(8);
             streamHeader.write(STREAM_MAGIC_BYTES);
@@ -41,9 +41,9 @@ class VideoStream extends EventEmitter {
 
             socket.on('close', () => {
                 console.log(`${this.name} disconnected !`);
-                if (!server.clients.length) {
-                    this.stop();
-                }
+                // if (!server.clients.length) {
+                //     this.stop();
+                // }
             });
         });
     }
