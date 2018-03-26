@@ -14,7 +14,7 @@ class Mpeg1Muxer extends EventEmitter {
             // ['-loglevel', 'quiet', '-rtsp_transport', 'tcp', '-re', '-i', this.url, '-s','1280x720','-an', '-f', 'mpegts','-codec:v', 'mpeg1video','-g', '30', '-bf', '0', '-b:v', '512k','-q', '20', '-'],
             // ['-loglevel', 'debug', '-rtsp_transport', 'tcp', '-re', '-i', this.url, '-f', 'mpegts', '-codec:v', 'mpeg1video','-b:v','1000k','-bf','0', '-' ],
             // deploy version
-            ['-loglevel', 'debug', '-rtsp_transport', 'tcp', '-i', this.url, '-f', 'mpegts', '-codec:v', 'mpeg1video', '-b:v', '1500k', '-codec:a', 'mp2', '-bf', '8', '-q', '22', '-'],
+            ['-loglevel', 'quiet', '-rtsp_transport', 'tcp', '-re', '-i', this.url, '-f', 'mpegts', '-codec:v', 'mpeg1video', '-b:v', '1500k', '-codec:a', 'mp2', '-bf', '8', '-q', '15', '-'],
             { detached: false }
         );
 
